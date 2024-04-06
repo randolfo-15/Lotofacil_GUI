@@ -7,8 +7,11 @@
  *****************************************************/
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -17,19 +20,36 @@ import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 
 class Main extends JFrame{
 // Fields
 // ======
-   JPanel    pnl   = new Graph("rec/images/background.png"); //< Panel
-   JMenuBar  mn    = new JMenuBar();                         //< Menu
-   final int size  = 100;                                    //< N° de buttons
-   JButton[] btn   = new JButton[size];                      //< Buttons
-   JButton   play  = new JButton("",new ImageIcon("rec/images/play.png")); 
-   JLabel    label = new JLabel(" Escolha 6 numeros e aperte play ");
+   JPanel    pnl  = new Graph("rec/images/background.png"); //< Panel
+   JMenuBar  mn   = new JMenuBar();                         //< Menu
+
+   final int size = 100,                                    //< N° de buttons
+             marking = 6;                                   //< N° de marcações
+   
+   int hits = 0;                                            //< Acertos
+
+   JButton[] btn  = new JButton[size];                      //< Buttons
+   JButton   act  = new JButton("",new ImageIcon("rec/images/play.png")); 
+   JLabel    label= new JLabel(" Escolha 6 numeros e aperte play ");
+   boolean   flag = false;                                   //< Flag de controle do botão play
 
    // Color:
-   Color df = new Color(255,255,224);
+   Color bg = new Color(255,255,224);
+   Color fg = Color.BLACK;
+
+   // Icones:
+   ImageIcon icn_play = new ImageIcon("rec/images/play.png");
+   ImageIcon icn_replay = new ImageIcon("rec/images/replay.png");
+   
+   // Ticket:
+   ArrayList<Integer> choose  = new ArrayList<Integer>();
+   ArrayList<Integer> awarded = new ArrayList<Integer>();
+   Random rand = new Random();
 
 // Build
 // =====
@@ -41,10 +61,11 @@ class Main extends JFrame{
       init_buttons();
       init_frame();
    }   
-   
+
+//------------------------------- Startup -------------------------------
    //! Startup Frame
    private void init_frame(){
-      setSize(660,460);
+      setSize(680,480);
       setResizable(false);
       setDefaultCloseOperation(EXIT_ON_CLOSE);
       setJMenuBar(mn);
@@ -56,38 +77,91 @@ class Main extends JFrame{
    //! Startup Menu Bar
    private void init_mabr(){
       setAutoRequestFocus(false);
-      play.setFont(Fonts.create("rec/fonts/font.ttf",20)); 
-      play.setBorderPainted(false);
-      play.setContentAreaFilled(false);
-      play.setFocusPainted(false);
-      mn.setBorder(BorderFactory.createLineBorder(df));
+      act.setBorderPainted(false);
+      act.setContentAreaFilled(false);
+      
+      act.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            if(flag) play(); 
+            else     replay();
+            flag=!flag;
+         }
+      });
+
+      mn.setBorder(BorderFactory.createLineBorder(bg));
       mn.add(new JSeparator(0));
-      mn.add(play);
+      mn.add(act);
    }
 
    //! Startup Label
    private void init_label(){
       JPanel panel = new JPanel();
-      panel.setBackground(df);
+      panel.setBackground(bg);
       panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-      label.setFont(Fonts.create("rec/fonts/font.ttf",32));
+      label.setFont(Fonts.create("rec/fonts/font.ttf",31));
       panel.add(label);
       pnl.add(panel); 
    }
 
    //! Startup Panel
-   private void init_panel(){ pnl.setBorder(BorderFactory.createLineBorder(df)); }
+   private void init_panel(){ pnl.setBorder(BorderFactory.createLineBorder(bg)); }
 
    // Startup Buttons
    private void init_buttons(){
+      // Setting button
       for(int i=0;i<size;i++) {
          btn[i]=(i<10)?(new JButton("0"+i)):(new JButton(""+i)); //< Create button 
-         btn[i].setBackground(df);
+         btn[i].setBackground(bg);
          btn[i].setFont(Fonts.create("rec/fonts/font.ttf",20));
          pnl.add(btn[i]);
       }
+      // Atribuir evento
+      for(var button: btn) button.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            if(choose.size() < marking) select(button);
+         }
+      });
+   }
+//------------------------------- Actions -------------------------------
+   //! Play action
+   private void play(){
+      act.setIcon(icn_play); 
+      for(int i=0;i<marking;i++) awarded.add(rand.nextInt(0,100));
+      
+      for(var chs:choose)
+         for(var awd:awarded) 
+            if(chs==awd){
+               hits++;
+               btn[awd].setBackground(Color.YELLOW);
+               btn[awd].setForeground(fg);
+            }else{
+               btn[awd].setBackground(Color.GREEN);
+            }
    }
 
+   //! Button default
+   private void dft(JButton btn){
+      btn.setBackground(bg);
+      btn.setForeground(fg);
+   }
+
+   //! Replay action
+   private void replay(){
+      act.setIcon(icn_replay);
+      //choose.clear();
+      //awarded.clear();
+      for(var i:awarded) dft(btn[i]); 
+      for(var i:choose)  dft(btn[i]);
+   }
+
+   //! Select
+   private void select(JButton btn){
+      btn.setBackground(Color.RED);
+      btn.setForeground(Color.WHITE);
+      choose.add(Integer.parseInt(btn.getText()));
+   }
+   
+//------------------------------- Main -------------------------------
    public static void main(String[] args) { new Main(); }
 }
 
