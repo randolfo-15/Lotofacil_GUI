@@ -13,6 +13,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -20,11 +21,12 @@ import javax.swing.JSeparator;
 class Main extends JFrame{
 // Fields
 // ======
-   JPanel    pnl  = new Graph("rec/images/background.png"); //< Panel
-   JMenuBar  mn   = new JMenuBar();                         //< Menu
-   final int size = 100;                                    //< N° de buttons
-   JButton[] btn  = new JButton[size];                      //< Buttons
-   JButton   play = new JButton("",new ImageIcon("rec/images/play.png")); 
+   JPanel    pnl   = new Graph("rec/images/background.png"); //< Panel
+   JMenuBar  mn    = new JMenuBar();                         //< Menu
+   final int size  = 100;                                    //< N° de buttons
+   JButton[] btn   = new JButton[size];                      //< Buttons
+   JButton   play  = new JButton("",new ImageIcon("rec/images/play.png")); 
+   JLabel    label = new JLabel(" Escolha 6 numeros e aperte play ");
 
    // Color:
    Color df = new Color(255,255,224);
@@ -35,6 +37,7 @@ class Main extends JFrame{
       super("Zebra de Ouro 2024");
       init_mabr();
       init_panel();
+      init_label();
       init_buttons();
       init_frame();
    }   
@@ -60,6 +63,16 @@ class Main extends JFrame{
       mn.setBorder(BorderFactory.createLineBorder(df));
       mn.add(new JSeparator(0));
       mn.add(play);
+   }
+
+   //! Startup Label
+   private void init_label(){
+      JPanel panel = new JPanel();
+      panel.setBackground(df);
+      panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+      label.setFont(Fonts.create("rec/fonts/font.ttf",32));
+      panel.add(label);
+      pnl.add(panel); 
    }
 
    //! Startup Panel

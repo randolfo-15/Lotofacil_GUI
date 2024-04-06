@@ -12,3 +12,10 @@ program: $(src)
 run:
 	java -cp ".:.bin" Main
 
+git:
+	git add *\
+	git add .*\
+	git commit -m "Update"\
+	git push \
+
+
