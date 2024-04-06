@@ -36,7 +36,7 @@ class Main extends JFrame{
    JButton[] btn  = new JButton[size];                      //< Buttons
    JButton   act  = new JButton("",new ImageIcon("rec/images/play.png")); 
    JLabel    label= new JLabel(" Escolha 6 numeros e aperte play ");
-   boolean   flag = false;                                   //< Flag de controle do botão play
+   boolean   flag = true;                                   //< Flag de controle do botão play
 
    // Color:
    Color bg = new Color(255,255,224);
@@ -82,6 +82,7 @@ class Main extends JFrame{
       
       act.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
+            if(choose.size()<marking)return;
             if(flag) play(); 
             else     replay();
             flag=!flag;
@@ -112,9 +113,11 @@ class Main extends JFrame{
       for(int i=0;i<size;i++) {
          btn[i]=(i<10)?(new JButton("0"+i)):(new JButton(""+i)); //< Create button 
          btn[i].setBackground(bg);
+         btn[i].setForeground(fg);
          btn[i].setFont(Fonts.create("rec/fonts/font.ttf",20));
          pnl.add(btn[i]);
       }
+
       // Atribuir evento
       for(var button: btn) button.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
@@ -122,21 +125,23 @@ class Main extends JFrame{
          }
       });
    }
+
 //------------------------------- Actions -------------------------------
    //! Play action
    private void play(){
-      act.setIcon(icn_play); 
-      for(int i=0;i<marking;i++) awarded.add(rand.nextInt(0,100));
+      act.setIcon(icn_replay); 
+      for(int i=0;i<marking;i++) awarded.add(rand.nextInt(size));
       
       for(var chs:choose)
          for(var awd:awarded) 
             if(chs==awd){
                hits++;
-               btn[awd].setBackground(Color.YELLOW);
-               btn[awd].setForeground(fg);
+               btn[chs].setBackground(Color.YELLOW);
+               btn[chs].setForeground(fg);
             }else{
                btn[awd].setBackground(Color.GREEN);
             }
+         
    }
 
    //! Button default
@@ -147,11 +152,13 @@ class Main extends JFrame{
 
    //! Replay action
    private void replay(){
-      act.setIcon(icn_replay);
-      //choose.clear();
-      //awarded.clear();
+      act.setIcon(icn_play);
       for(var i:awarded) dft(btn[i]); 
-      for(var i:choose)  dft(btn[i]);
+      for(var i:choose)  dft(btn[i]);      
+      choose.clear();
+      awarded.clear();
+      hits=0;
+
    }
 
    //! Select
