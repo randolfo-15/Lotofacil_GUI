@@ -12,10 +12,9 @@ program: $(src)
 run:
 	java -cp ".:.bin" Main
 
-git:
-	git add *\
-	git add .*\
-	git commit -m "Update"\
-	git push \
+jar:
+	javac -d .bin $(src); \
+	jar -cfm Lotofacil.jar src/MANIFEST.MF .bin
 
-
+clear:
+	rm .bin/*.class

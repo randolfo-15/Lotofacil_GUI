@@ -1,11 +1,11 @@
 # Loto Fácil
 
-![Loteria](image/zebra.png)
+![Loteria](rec/images/banner.jpg)
 
 ## Proposta
 
-LotoFacil é um programa CLI(Command line interface) que simula um sorteio de loteria
-você pode escolher 6 números, ou pegar um bilhete pronto e testar sua sorte.
+LotoFacil é um programa que simula um sorteio de loteria
+você pode escolher quantos números quiser e testar sua sorte.
 
 ## Instalação
 
@@ -23,12 +23,16 @@ Ao adentrar a pasta do projeto dígite:
     make
     # 2° passo:
     make run
+    # Caso queira gerar um arquivo .jar:
+    make jar
 ```
 
-Após Esta etapa o programa inicia sua execução, escolha uma opção e aposte
+Após Esta etapa o programa inicia sua execução, escolha seus números e aposte:
 
-![banner](image/banner.jpg)
+![placar]("rec/images/placar.jpg")
+___
+caso queira alterar uma casa selecionada é so clicar nela novamente.
 
-## Placar de resultados
+## Caso deseje alterar o números de casas selecionadas, altere o slider:
 
-![placar](image/placar.jpg)
+![nivel](rec/images/nivel.jpg)
