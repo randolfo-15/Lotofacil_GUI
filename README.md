@@ -30,6 +30,7 @@ Ao adentrar a pasta do projeto dígite:
 Após Esta etapa o programa inicia sua execução, escolha seus números e aposte:
 
 ![placar]("rec/images/placar.jpg")
+
 ___
 caso queira alterar uma casa selecionada é so clicar nela novamente.
 
