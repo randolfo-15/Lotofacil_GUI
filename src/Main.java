@@ -7,11 +7,11 @@
  *****************************************************/
 
 import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Random;
-
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -20,22 +20,35 @@ import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 class Main extends JFrame{
 // Fields
 // ======
-   JPanel    pnl  = new Graph("rec/images/background.png"); //< Panel
+   JPanel    pnl  = new JPanel(new BorderLayout());         //< Panel
    JMenuBar  mn   = new JMenuBar();                         //< Menu
 
-   final int size = 100,                                    //< N° de buttons
-             marking = 6;                                   //< N° de marcações
+   final int size = 100;                                    //< N° de buttons
+         int marking = 6;                                   //< N° de marcações
    
    int hits = 0;                                            //< Acertos
+   
+   // Buttons
+   class Btn extends JButton{
+      boolean clicked = false;
+      Btn(String text,boolean click){ 
+         super(text);
+         clicked=click;
+      }
+   }
+   Btn[] btn  = new Btn[size];                      //< Buttons
 
-   JButton[] btn  = new JButton[size];                      //< Buttons
    JButton   act  = new JButton("",new ImageIcon("rec/images/play.png")); 
-   JLabel    label= new JLabel(" Escolha 6 numeros e aperte play ");
+   
+   JLabel    label= new JLabel(" Escolha "+marking+" numeros e aperte play ");
+   
    boolean   flag = true;                                   //< Flag de controle do botão play
 
    // Color:
@@ -51,10 +64,16 @@ class Main extends JFrame{
    ArrayList<Integer> awarded = new ArrayList<Integer>();
    Random rand = new Random();
 
+   //! Slider
+   JSlider slider = new JSlider(1,46,marking);
+
+
+
 // Build
 // =====
    Main(){
       super("Zebra de Ouro 2024");
+      init_slider();
       init_mabr();
       init_panel();
       init_label();
@@ -65,7 +84,7 @@ class Main extends JFrame{
 //------------------------------- Startup -------------------------------
    //! Startup Frame
    private void init_frame(){
-      setSize(680,480);
+      setSize(680,470);
       setResizable(false);
       setDefaultCloseOperation(EXIT_ON_CLOSE);
       setJMenuBar(mn);
@@ -94,6 +113,24 @@ class Main extends JFrame{
       mn.add(act);
    }
 
+   //! Setting marking
+   private void init_slider(){
+      slider.setMajorTickSpacing(5);
+      slider.setMinorTickSpacing(1);
+      slider.setPaintTicks(true);
+      slider.setPaintLabels(true);
+      JLabel lbl = new JLabel(" Apostas: ");
+      lbl.setFont(Fonts.create("rec/fonts/font.ttf", 25));
+      slider.addChangeListener(new ChangeListener() {
+         public void stateChanged(ChangeEvent arg0) {
+            marking = slider.getValue();
+            label.setText(" Escolha "+marking+" numeros e aperte play "); 
+         }
+      });
+      mn.add(lbl);
+      mn.add(slider);
+   }
+
    //! Startup Label
    private void init_label(){
       JPanel panel = new JPanel();
@@ -101,7 +138,7 @@ class Main extends JFrame{
       panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
       label.setFont(Fonts.create("rec/fonts/font.ttf",31));
       panel.add(label);
-      pnl.add(panel); 
+      pnl.add(panel,BorderLayout.SOUTH); 
    }
 
    //! Startup Panel
@@ -110,18 +147,24 @@ class Main extends JFrame{
    // Startup Buttons
    private void init_buttons(){
       // Setting button
+      JPanel panel = new Graph("rec/images/background.png");
       for(int i=0;i<size;i++) {
-         btn[i]=(i<10)?(new JButton("0"+i)):(new JButton(""+i)); //< Create button 
+         btn[i]=(i<10)?(new Btn("0"+i,true)):(new Btn(""+i,true)); //< Create button 
          btn[i].setBackground(bg);
          btn[i].setForeground(fg);
          btn[i].setFont(Fonts.create("rec/fonts/font.ttf",20));
-         pnl.add(btn[i]);
+         panel.add(btn[i]); 
+         pnl.add(panel);
       }
 
       // Atribuir evento
       for(var button: btn) button.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
-            if(choose.size() < marking) select(button);
+            if((choose.size() < marking||
+               check_choose(Integer.parseInt(button.getText())))
+               &&flag
+            ) 
+               select(button);
          }
       });
    }
@@ -130,18 +173,27 @@ class Main extends JFrame{
    //! Play action
    private void play(){
       act.setIcon(icn_replay); 
-      for(int i=0;i<marking;i++) awarded.add(rand.nextInt(size));
-      
-      for(var chs:choose)
-         for(var awd:awarded) 
-            if(chs==awd){
+      int value=0;
+      boolean exist = false;
+      for(int i=0;i<marking;i++){
+         do{
+            exist =false;
+            value = rand.nextInt(0,size);
+            for(var awd:awarded) if(awd==value){ exist=true;break;}
+         }while(exist);
+         awarded.add(value);
+         btn[value].setBackground(Color.GREEN);
+      } 
+
+      for(var awd:awarded)
+         for(var chs:choose)
+            if(awd==chs) {
                hits++;
-               btn[chs].setBackground(Color.YELLOW);
-               btn[chs].setForeground(fg);
-            }else{
-               btn[awd].setBackground(Color.GREEN);
+               btn[awd].setBackground(Color.YELLOW);
+               btn[awd].setForeground(fg);
+               break;
             }
-         
+      label.setText("Ganhou R$ "+(hits*500.00));
    }
 
    //! Button default
@@ -154,20 +206,39 @@ class Main extends JFrame{
    private void replay(){
       act.setIcon(icn_play);
       for(var i:awarded) dft(btn[i]); 
-      for(var i:choose)  dft(btn[i]);      
+      for(var i:choose) {
+         dft(btn[i]);      
+         btn[i].clicked=true;
+      }
       choose.clear();
       awarded.clear();
       hits=0;
-
+      label.setText(" Escolha "+marking+" numeros e aperte play ");
    }
 
    //! Select
-   private void select(JButton btn){
-      btn.setBackground(Color.RED);
-      btn.setForeground(Color.WHITE);
-      choose.add(Integer.parseInt(btn.getText()));
+   private void select(Btn btn){
+      if(btn.clicked){ 
+         btn.setBackground(Color.RED);
+         btn.setForeground(Color.WHITE);
+         choose.add(Integer.parseInt(btn.getText()));
+         btn.clicked=false;
+      }else{
+         dft(btn);
+         btn.clicked=true;
+         for(int i=0;i<choose.size();i++) 
+            if(choose.get(i)==Integer.parseInt(btn.getText())){
+               choose.remove(i);
+               break;
+            }
+      }
    }
    
+   // Check chooses
+   private boolean check_choose(int n){
+      for(var chs:choose) if(n==chs) return true;
+      return false;
+   }  
 //------------------------------- Main -------------------------------
    public static void main(String[] args) { new Main(); }
 }
