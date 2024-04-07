@@ -31,8 +31,7 @@ Após Esta etapa o programa inicia sua execução, escolha seus números e apost
 
 ![placar]("rec/images/placar.jpg")
 
-___
-caso queira alterar uma casa selecionada é so clicar nela novamente.
+#### caso queira alterar uma casa selecionada é so clicar nela novamente.
 
 ## Caso deseje alterar o números de casas selecionadas, altere o slider:
 
