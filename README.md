@@ -27,10 +27,9 @@ Ao adentrar a pasta do projeto dígite:
     make jar
 ```
 
-![placar]("rec/images/placar.jpg")
 Após Esta etapa o programa inicia sua execução, escolha seus números e aposte:
 
-![placar]("rec/images/placar.jpg")
+![placar](rec/images/placar.jpg)
 
 #### caso queira alterar uma casa selecionada é so clicar nela novamente.
 
