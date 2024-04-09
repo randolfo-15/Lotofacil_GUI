@@ -49,7 +49,8 @@ class Main extends JFrame{
 
    JButton   act  = new JButton("",new ImageIcon("rec/images/play.png")); 
    
-   JLabel    label= new JLabel(" Escolha "+marking+" numeros e aperte play ");
+   JLabel    label  = new JLabel(" Escolha "+marking+" numeros e aperte play "),
+             status = new JLabel(" Apostas: ");
    
    boolean   flag = true;                                   //< Flag de controle do botão play
 
@@ -125,8 +126,7 @@ class Main extends JFrame{
       slider.setMinorTickSpacing(1);
       slider.setPaintTicks(true);
       slider.setPaintLabels(true);
-      JLabel lbl = new JLabel(" Apostas: ");
-      lbl.setFont(Fonts.create("rec/fonts/font.ttf", 25));
+      status.setFont(Fonts.create("rec/fonts/font.ttf", 25));
       slider.addChangeListener(new ChangeListener() {
          public void stateChanged(ChangeEvent arg0) {
             int value = slider.getValue();
@@ -139,7 +139,7 @@ class Main extends JFrame{
             label.setText(" Escolha "+marking+" numeros e aperte play "); 
          }
       });
-      mn.add(lbl);
+      mn.add(status);
       mn.add(slider);
    }
 
@@ -186,6 +186,7 @@ class Main extends JFrame{
    private void play(){
       act.setIcon(icn_replay); 
       slider.setVisible(false);
+      status.setText(" Resultado: ");
       int value=0;
       boolean exist = false;
       for(int i=0;i<marking;i++){
@@ -219,6 +220,7 @@ class Main extends JFrame{
    private void replay(){
       act.setIcon(icn_play);
       slider.setVisible(true);
+      status.setText(" Apostas: ");
       for(var i:awarded) dft(btn[i]); 
       for(var i:choose) {
          dft(btn[i]);      
