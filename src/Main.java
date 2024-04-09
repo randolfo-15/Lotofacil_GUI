@@ -18,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
@@ -102,7 +103,10 @@ class Main extends JFrame{
       
       act.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
-            if(choose.size()<marking)return;
+            if(choose.size()<marking){
+               JOptionPane.showMessageDialog(null," Numero insulficiente de casas marcadas.","",0,new ImageIcon("rec/images/zebra1.png"));
+               return;
+            }
             if(flag) play(); 
             else     replay();
             flag=!flag;
