@@ -185,6 +185,7 @@ class Main extends JFrame{
    //! Play action
    private void play(){
       act.setIcon(icn_replay); 
+      slider.setVisible(false);
       int value=0;
       boolean exist = false;
       for(int i=0;i<marking;i++){
@@ -217,6 +218,7 @@ class Main extends JFrame{
    //! Replay action
    private void replay(){
       act.setIcon(icn_play);
+      slider.setVisible(true);
       for(var i:awarded) dft(btn[i]); 
       for(var i:choose) {
          dft(btn[i]);      
