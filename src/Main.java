@@ -19,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -89,7 +90,7 @@ class Main extends JFrame{
       setDefaultCloseOperation(EXIT_ON_CLOSE);
       setJMenuBar(mn);
       setContentPane(pnl);
-      setIconImage(new ImageIcon("rec/images/trevo.png").getImage());
+      setIconImage(new ImageIcon("rec/images/zebra0.png").getImage());
       setVisible(true);
    }
   
@@ -239,7 +240,41 @@ class Main extends JFrame{
       for(var chs:choose) if(n==chs) return true;
       return false;
    }  
+
 //------------------------------- Main -------------------------------
-   public static void main(String[] args) { new Main(); }
+   //! create splash
+   private static void create_splash(){ 
+      JFrame fm = new JFrame();
+      JLabel lb = new JLabel(new ImageIcon("rec/images/zebra0.png"));
+      JProgressBar prog =new JProgressBar(0,100);
+      JPanel p1 = new JPanel(new BorderLayout());
+      fm.setSize(500,470);
+      fm.setUndecorated(true);
+      
+      Color tras = new Color(0,0,0,1);
+      
+      fm.setBackground(tras); 
+      p1.setBackground(tras); 
+      prog.setForeground(new Color(255,165,0));
+
+      p1.add(lb,BorderLayout.CENTER);
+      p1.add(prog,BorderLayout.SOUTH);
+      fm.add(p1);
+
+      fm.setVisible(true);
+      try{ 
+         for(int i=0;i<100;i++){
+            Thread.sleep(40);
+            prog.setValue(i);
+         }
+      }
+      catch(Exception e){ e.printStackTrace(); }
+      fm.setVisible(false);
+   }         
+
+   public static void main(String[] args) { 
+      create_splash(); 
+      new Main(); 
+   }
 }
 
