@@ -88,6 +88,7 @@ class Main extends JFrame{
    private void init_frame(){
       setSize(680,470);
       setResizable(false);
+      setLocationRelativeTo(null);
       setDefaultCloseOperation(EXIT_ON_CLOSE);
       setJMenuBar(mn);
       setContentPane(pnl);
@@ -128,7 +129,13 @@ class Main extends JFrame{
       lbl.setFont(Fonts.create("rec/fonts/font.ttf", 25));
       slider.addChangeListener(new ChangeListener() {
          public void stateChanged(ChangeEvent arg0) {
-            marking = slider.getValue();
+            int value = slider.getValue();
+            if(value<marking) 
+            { 
+               for(int i=choose.size()-1;i>=value;i--) select(btn[choose.get(i)]);
+               marking=value;
+            }else marking = value;
+
             label.setText(" Escolha "+marking+" numeros e aperte play "); 
          }
       });
@@ -253,6 +260,7 @@ class Main extends JFrame{
       JProgressBar prog =new JProgressBar(0,100);
       JPanel p1 = new JPanel(new BorderLayout());
       fm.setSize(500,470);
+      fm.setLocationRelativeTo(null);
       fm.setUndecorated(true);
       
       Color tras = new Color(0,0,0,1);
@@ -268,7 +276,7 @@ class Main extends JFrame{
       fm.setVisible(true);
       try{ 
          for(int i=0;i<100;i++){
-            Thread.sleep(40);
+            Thread.sleep(30);
             prog.setValue(i);
          }
       }
