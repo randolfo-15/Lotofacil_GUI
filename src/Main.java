@@ -8,11 +8,19 @@
 
 import java.awt.Color;
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.LayoutManager;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,92 +29,189 @@ import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.CardLayout;
+import java.awt.Container;
 
 class Main extends JFrame{
-// Fields
-// ======
-   JPanel    pnl  = new JPanel(new BorderLayout());         //< Panel
-   JMenuBar  mn   = new JMenuBar();                         //< Menu
+//--------------------------------------------------------------------------   
+// Field
+//--------------------------------------------------------------------------
 
-   final int size = 100;                                    //< N° de buttons
-         int marking = 6;                                   //< N° de marcações
-   
-   int hits = 0;                                            //< Acertos
-   
-   // Buttons
-   class Btn extends JButton{
-      boolean clicked = false;
-      Btn(String text,boolean click){ 
-         super(text);
-         clicked=click;
-      }
-   }
-   Btn[] btn  = new Btn[size];                      //< Buttons
+   //  Panels
+   // --------
+   private CardLayout card   = new CardLayout();                     //! Manager panels.
+   private Container  buffer = null;                                 //! Container de paneis.
+   private Map<String,JPanel> panel = new HashMap<String,JPanel>();  //! Units Panel.
 
-   JButton   act  = new JButton("",new ImageIcon("rec/images/play.png")); 
+   //  Buttons
+   // ---------
+   private Map<String,JButton> buttons = new HashMap<String,JButton>();      //! Units Buttons.
+   public static  JButton action = new JButton();
+   static boolean flag = true ;
    
-   JLabel    label  = new JLabel(" Escolha "+marking+" numeros e aperte play "),
-             status = new JLabel(" Apostas: ");
+   //  Menu Bar
+   // ----------
+   private JMenuBar mbar = new JMenuBar();
+
+   //  Color 
+   // -------
+   static Color dft = new Color(0,0,0,1); 
+   static final String background = "rec/images/background.png";
    
-   boolean   flag = true;                                   //< Flag de controle do botão play
+   //  Slinder
+   // ---------
+   static int marking = 6;                                         
+   static JSlider slider = new JSlider(1,46,marking);
 
-   // Color:
-   Color bg = new Color(255,255,224);
-   Color fg = Color.BLACK;
+   //  Label
+   // -------
+   static JLabel status = new JLabel("");
 
-   // Icones:
+   //  Radio button
+   // --------------
+   static JRadioButton[] prir   = new JRadioButton[]{
+      new JRadioButton("Par"),
+      new JRadioButton("Impar")  
+   };
+   static ButtonGroup group = new ButtonGroup();
+
+   //  Icones
+   // --------
    ImageIcon icn_play = new ImageIcon("rec/images/play.png");
    ImageIcon icn_replay = new ImageIcon("rec/images/replay.png");
-   
-   // Ticket:
-   ArrayList<Integer> choose  = new ArrayList<Integer>();
-   ArrayList<Integer> awarded = new ArrayList<Integer>();
-   Random rand = new Random();
 
-   //! Slider
-   JSlider slider = new JSlider(1,46,marking);
-
-
-
+//--------------------------------------------------------------------------   
 // Build
-// =====
-   Main(){
-      super("Zebra de Ouro 2024");
-      init_slider();
-      init_mabr();
-      init_panel();
-      init_label();
-      init_buttons();
-      init_frame();
-   }   
+//--------------------------------------------------------------------------
 
-//------------------------------- Startup -------------------------------
-   //! Startup Frame
-   private void init_frame(){
-      setSize(680,470);
-      setResizable(false);
-      setLocationRelativeTo(null);
-      setDefaultCloseOperation(EXIT_ON_CLOSE);
-      setJMenuBar(mn);
-      setContentPane(pnl);
-      setIconImage(new ImageIcon("rec/images/zebra0.png").getImage());
-      setVisible(true);
+   Main(){
+      super("Zebra de ouro 2024");
+      init(buffer);
+      init(mbar); 
+      init(this);
    }
-  
-   //! Startup Menu Bar
-   private void init_mabr(){
-      setAutoRequestFocus(false);
-      act.setBorderPainted(false);
-      act.setContentAreaFilled(false);
+
+   //! Startup frame
+   private void init(JFrame my){
+      my.setSize(680,490);
+      my.setResizable(false);
+      my.setLocationRelativeTo(null);
+      my.setDefaultCloseOperation(EXIT_ON_CLOSE);
+      my.setJMenuBar(mbar);
+      my.setIconImage(new ImageIcon("rec/images/zebra0.png").getImage());
+      card.show(buffer, "MENU");
+      my.setVisible(true);
+   }
+//--------------------------------------------------------------------------   
+// Buffer
+//--------------------------------------------------------------------------   
+
+   //! Startup buffer
+   private void init(Container panels){
+      buffer = getContentPane();
+      buffer.setLayout(card);
+
+      panel.put("MENU",init(panel.get("MENU"))); 
+      panel.put("MEGA",new Mega()); 
+      panel.put("LETR",new Letter()); 
+      panel.put("PRIR",new ParImpar()); 
+     
+      panel.forEach((key,pnl) -> buffer.add(key,pnl));
+   }
+//--------------------------------------------------------------------------   
+// Menu Bar
+//--------------------------------------------------------------------------
+   //! Play action
+   private void play(){
+      action.setIcon(icn_replay); 
+      slider.setVisible(false);
+      status.setText(" Resultado: ");
+      int value=0;
+      boolean exist = false;
+      for(int i=0;i<Main.marking;i++){
+         do{
+            exist =false;
+            value = Mega.rand.nextInt(0,Mega.size);
+            for(var awd:Mega.awarded) if(awd==value){ exist=true;break;}
+         }while(exist);
+         Mega.awarded.add(value);
+         Mega.btn[value].setBackground(Color.GREEN);
+      } 
+
+      for(var awd:Mega.awarded)
+         for(var chs:Mega.choose)
+            if(awd==chs) {
+               Mega.hits++;
+               Mega.btn[awd].setBackground(Color.YELLOW);
+               Mega.btn[awd].setForeground(Btn.fg);
+               break;
+            }
+      Mega.label.setText("Ganhou R$ "+(Mega.hits*500.00));
+   }
+
+
+
+   //! Replay action
+   private void replay(){
+      action.setIcon(icn_play);
+      slider.setVisible(true);
+      status.setText(" Apostas: ");
+      for(var i:Mega.awarded) Btn.dft(Mega.btn[i]); 
+      for(var i:Mega.choose) {
+         Btn.dft(Mega.btn[i]);      
+         Mega.btn[i].clicked=true;
+      }
+      Mega.choose.clear();
+      Mega.awarded.clear();
+      Mega.hits=0;
+      Mega.label.setText(" Escolha "+Main.marking+" numeros e aperte play ");
+   }
+
+   private void radio_button(){
+      for(var radio: prir){
+         radio.setFont(Fonts.create("rec/fonts/font.ttf",18));;
+         radio.setFocusPainted(false);
+         radio.setBorderPainted(false);
+         group.add(radio);
+      } 
       
-      act.addActionListener(new ActionListener() {
+   }
+
+   private void slinder(){
+      slider.setMajorTickSpacing(5);
+      slider.setMinorTickSpacing(1);
+      slider.setPaintTicks(true);
+      slider.setPaintLabels(true);
+      slider.addChangeListener(new ChangeListener() {
+         public void stateChanged(ChangeEvent arg0) {
+            int value = slider.getValue();
+            if(value<marking) 
+            { 
+               for(int i=Mega.choose.size()-1;i>=value;i--) Mega.select(Mega.btn[Mega.choose.get(i)]);
+               marking=value;
+            }else marking = value;
+
+            Mega.label.setText(" Escolha "+marking+" numeros e aperte play "); 
+         }
+      });
+   }
+
+   private void actions(){
+      action.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
-            if(choose.size()<marking){
-               JOptionPane.showMessageDialog(null," Numero insulficiente de casas marcadas.","",0,new ImageIcon("rec/images/zebra1.png"));
+            if(Mega.choose.size()<marking){
+               JOptionPane.showMessageDialog(
+                     null,
+                     " Numero insulficiente de casas marcadas.",
+                     "",
+                     0,
+                     new ImageIcon("rec/images/zebra1.png")
+               );
                return;
             }
             if(flag) play(); 
@@ -114,182 +219,125 @@ class Main extends JFrame{
             flag=!flag;
          }
       });
-
-      mn.setBorder(BorderFactory.createLineBorder(bg));
-      mn.add(new JSeparator(0));
-      mn.add(act);
    }
 
-   //! Setting marking
-   private void init_slider(){
-      slider.setMajorTickSpacing(5);
-      slider.setMinorTickSpacing(1);
-      slider.setPaintTicks(true);
-      slider.setPaintLabels(true);
-      status.setFont(Fonts.create("rec/fonts/font.ttf", 25));
-      slider.addChangeListener(new ChangeListener() {
-         public void stateChanged(ChangeEvent arg0) {
-            int value = slider.getValue();
-            if(value<marking) 
-            { 
-               for(int i=choose.size()-1;i>=value;i--) select(btn[choose.get(i)]);
-               marking=value;
-            }else marking = value;
+   private void init(JMenuBar mbar){
+      recource("MENU");
+      active_btn(buttons.get("MENU"),"rec/images/menu.png"); 
+      active_btn(action,"rec/images/play.png");
+      status.setFont(Fonts.create("rec/fonts/font.ttf",25));
+      radio_button();
+      slinder();
+      actions();
 
-            label.setText(" Escolha "+marking+" numeros e aperte play "); 
-         }
-      });
-      mn.add(status);
-      mn.add(slider);
+      mbar.add(status);
+      for(var n: prir) mbar.add(n);
+      mbar.add(slider);
+      mbar.add(new JSeparator(0));
+      mbar.add(action);
+      mbar.add(buttons.get("MENU"));
    }
 
-   //! Startup Label
-   private void init_label(){
-      JPanel panel = new JPanel();
-      panel.setBackground(bg);
-      panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-      label.setFont(Fonts.create("rec/fonts/font.ttf",31));
-      panel.add(label);
-      pnl.add(panel,BorderLayout.SOUTH); 
-   }
-
-   //! Startup Panel
-   private void init_panel(){ pnl.setBorder(BorderFactory.createLineBorder(bg)); }
-
-   // Startup Buttons
-   private void init_buttons(){
-      // Setting button
-      JPanel panel = new Graph("rec/images/background.png");
-      for(int i=0;i<size;i++) {
-         btn[i]=(i<10)?(new Btn("0"+i,true)):(new Btn(""+i,true)); //< Create button 
-         btn[i].setBackground(bg);
-         btn[i].setForeground(fg);
-         btn[i].setFont(Fonts.create("rec/fonts/font.ttf",20));
-         panel.add(btn[i]); 
-         pnl.add(panel);
-      }
-
-      // Atribuir evento
-      for(var button: btn) button.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
-            if((choose.size() < marking||
-               check_choose(Integer.parseInt(button.getText())))
-               &&flag
-            ) 
-               select(button);
-         }
-      });
-   }
-
-//------------------------------- Actions -------------------------------
-   //! Play action
-   private void play(){
-      act.setIcon(icn_replay); 
-      slider.setVisible(false);
-      status.setText(" Resultado: ");
-      int value=0;
-      boolean exist = false;
-      for(int i=0;i<marking;i++){
-         do{
-            exist =false;
-            value = rand.nextInt(0,size);
-            for(var awd:awarded) if(awd==value){ exist=true;break;}
-         }while(exist);
-         awarded.add(value);
-         btn[value].setBackground(Color.GREEN);
-      } 
-
-      for(var awd:awarded)
-         for(var chs:choose)
-            if(awd==chs) {
-               hits++;
-               btn[awd].setBackground(Color.YELLOW);
-               btn[awd].setForeground(fg);
-               break;
-            }
-      label.setText("Ganhou R$ "+(hits*500.00));
-   }
-
-   //! Button default
-   private void dft(JButton btn){
-      btn.setBackground(bg);
-      btn.setForeground(fg);
-   }
-
-   //! Replay action
-   private void replay(){
-      act.setIcon(icn_play);
-      slider.setVisible(true);
-      status.setText(" Apostas: ");
-      for(var i:awarded) dft(btn[i]); 
-      for(var i:choose) {
-         dft(btn[i]);      
-         btn[i].clicked=true;
-      }
-      choose.clear();
-      awarded.clear();
-      hits=0;
-      label.setText(" Escolha "+marking+" numeros e aperte play ");
-   }
-
-   //! Select
-   private void select(Btn btn){
-      if(btn.clicked){ 
-         btn.setBackground(Color.RED);
-         btn.setForeground(Color.WHITE);
-         choose.add(Integer.parseInt(btn.getText()));
-         btn.clicked=false;
-      }else{
-         dft(btn);
-         btn.clicked=true;
-         for(int i=0;i<choose.size();i++) 
-            if(choose.get(i)==Integer.parseInt(btn.getText())){
-               choose.remove(i);
-               break;
-            }
-      }
+   private void active_btn(JButton btn, String image){
+      btn.setIcon(new ImageIcon(image));
+      btn.setBackground(dft);
+      btn.setFocusPainted(false);
+      btn.setBorderPainted(false);
+      btn.setOpaque(false);
    }
    
-   // Check chooses
-   private boolean check_choose(int n){
-      for(var chs:choose) if(n==chs) return true;
-      return false;
-   }  
+//--------------------------------------------------------------------------   
+// Buttons
+//--------------------------------------------------------------------------
 
-//------------------------------- Main -------------------------------
-   //! create splash
-   private static void create_splash(){ 
-      JFrame fm = new JFrame();
-      JLabel lb = new JLabel(new ImageIcon("rec/images/zebra0.png"));
-      JProgressBar prog =new JProgressBar(0,100);
-      JPanel p1 = new JPanel(new BorderLayout());
-      fm.setSize(500,470);
-      fm.setLocationRelativeTo(null);
-      fm.setUndecorated(true);
-      
-      Color tras = new Color(0,0,0,1);
-      
-      fm.setBackground(tras); 
-      p1.setBackground(tras); 
-      prog.setForeground(new Color(255,165,0));
+   //! Startup buttons
+   private void init(Map<String,JButton> btn){
+      buttons.put("MENU",new JButton("")); 
+      buttons.put("MEGA",new JButton(" Lotofacil ")); 
+      buttons.put("LETR",new JButton(" Jogo das Letras ")); 
+      buttons.put("PRIR",new JButton(" Impar ou Par ")); 
+     
+      buttons.forEach((key,value) -> init(key,value));
+   }   
 
-      p1.add(lb,BorderLayout.CENTER);
-      p1.add(prog,BorderLayout.SOUTH);
-      fm.add(p1);
-
-      fm.setVisible(true);
-      try{ 
-         for(int i=0;i<100;i++){
-            Thread.sleep(30);
-            prog.setValue(i);
+   //! Setting Btns
+   private void init(String key , JButton btn){
+      btn.setFont(Fonts.create("rec/fonts/font.ttf", 40));
+      btn.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            recource(key);
+            card.show(buffer, key);
          }
+      });
+   }
+
+   //! Features
+   private void recource(String key){
+      switch (key){
+         case "MEGA":
+         {
+            status.setText(" Apostas: ");
+            visible(true,key) ;     
+         }
+         break;
+         case "LETR":
+         { 
+            status.setText(" Escolha uma letra: "); 
+            visible(false,key);
+         } 
+         break;
+         case "MENU":
+         {
+            status.setText(""); 
+            visible(false,key);
+         } 
+         break;
+         case "PRIR":
+         {
+            status.setText(" Escolha uma categoria: ");
+            visible(false,key);
+         }
+         break;
       }
-      catch(Exception e){ e.printStackTrace(); }
-      fm.setVisible(false);
-   }         
+   }
+
+   //! visible recource
+   private void visible(boolean value,String key){
+      slider.setVisible(value);
+      action.setVisible(value);
+      value = (key.equals("PRIR"))?!value:false;
+      for(var n: prir) n.setVisible(value);
+   } 
+//--------------------------------------------------------------------------   
+// Menu
+//--------------------------------------------------------------------------
+   private JPanel init(JPanel menu){
+      menu = panel(new FlowLayout());
+      
+      JPanel layout = new JPanel(new GridLayout(4,1,15,30)); 
+      layout.setBackground(dft);
+      
+      init(buttons);                                                  
+      layout.add(new JLabel(""));
+      layout.add(buttons.get("MEGA"));
+      layout.add(buttons.get("LETR"));
+      layout.add(buttons.get("PRIR"));
+      
+      menu.add(layout);
+      return menu;                                 
+   }   
+
+   static JPanel panel(LayoutManager mng){
+      Graph pnl = new Graph("rec/images/background.png");
+      return pnl;
+   }
+//--------------------------------------------------------------------------   
+// main
+//--------------------------------------------------------------------------
 
    public static void main(String[] args) { 
-      create_splash(); 
+      Mega.create_splash();
       new Main(); 
    }
 }

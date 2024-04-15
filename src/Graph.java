@@ -5,8 +5,12 @@ public class Graph extends javax.swing.JPanel{
     
     private ImageIcon img;
     
-    public Graph(){ img = new ImageIcon(); }
-    public Graph(String path){ img = new ImageIcon(path); }
+    public Graph(){ 
+        img = new ImageIcon(); 
+    }
+    public Graph(String path){ 
+        img = new ImageIcon(path); 
+    }
 
     
     @Override

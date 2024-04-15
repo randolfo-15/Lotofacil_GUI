@@ -7,6 +7,20 @@
 LotoFacil é um programa que simula um sorteio de loteria
 você pode escolher quantos números quiser e testar sua sorte.
 
+## Minigames
+LotoFacil possui mais dois Minigames
+### Letra da Sorte:
+
+![letter](rec/images/game_letter.jpg)
+
+### Par ou Impar:
+
+![par_impa](rec/images/game_prir.jpg)
+
+### Todos esses games podem ser acessados na janela de menu:
+
+![Menu](rec/images/menu_main.jpg)
+
 ## Instalação
 
 ### Observação 
@@ -27,7 +41,12 @@ Ao adentrar a pasta do projeto dígite:
     make jar
 ```
 
-Após Esta etapa o programa inicia sua execução, escolha seus números e aposte:
+## Como jogar no Zebra de ouro:
+Após instalar o programa e selecionar uma modalidade siga as recomendações do game
+escolhido. 
+
+### Ex (LotoFacil):
+Escolha alguns números e aperte play:
 
 ![placar](rec/images/placar.jpg)
 
